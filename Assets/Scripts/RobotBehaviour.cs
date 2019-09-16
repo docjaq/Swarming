@@ -13,10 +13,20 @@ public class RobotBehaviour : MonoBehaviour {
     [SerializeField] private float defaultTorque = 0.5f;
     [SerializeField] private float maxTorque = 1;
 
+    [SerializeField] private float deadZone = 0.1f;
+
+    [SerializeField] private AnimationCurve approachVelocityCurve;
+    
     public RobotLeadBehaviour robotLeadBehaviour { get; set; }
 
+    [SerializeField]
+    private List<RobotBehaviour> neighbours;
+
+    
+    
     private void Awake() {
         rigidBody = GetComponent<Rigidbody>();
+        neighbours = new List<RobotBehaviour>();
     }
     
     private void FixedUpdate() {
@@ -31,10 +41,14 @@ public class RobotBehaviour : MonoBehaviour {
         var forwards = transform.up;
         var up = transform.forward;
 
-        var directionalMagnitude = Vector3.Dot(forwards,toLead);
+        var normalisedDirectionalMagnitude = Vector3.Dot(forwards,toLead);
 
-        var forwardForce = forwards*defaultForce*directionalMagnitude;
-
+        var distanceToLead = Vector3.Distance(transform.position, robotLeadBehaviour.transform.position);
+        //distanceToLead = Mathf.Max(distanceToLead - deadZone, 0);
+        var approachVelocityScale = approachVelocityCurve.Evaluate(distanceToLead);
+        
+        var forwardForce = forwards*defaultForce*normalisedDirectionalMagnitude*approachVelocityScale;
+        
         var angularForce = Vector3.SignedAngle(forwards, toLead, up);
 
         rigidBody.AddTorque(up*defaultTorque*angularForce);
@@ -48,6 +62,14 @@ public class RobotBehaviour : MonoBehaviour {
     }
 
     private Vector3 DirectionToLeadRobot() {
-        return robotLeadBehaviour.transform.position - transform.position;
+        return Vector3.Normalize(robotLeadBehaviour.transform.position - transform.position);
+    }
+
+    private void OnTriggerEnter(Collider other) {
+        neighbours.Add(other.gameObject.GetComponent<RobotBehaviour>());
+    }
+
+    private void OnTriggerExit(Collider other) {
+        neighbours.Remove(other.gameObject.GetComponent<RobotBehaviour>());
     }
 }
