@@ -16,6 +16,7 @@ public class SwarmInitialiser : MonoBehaviour {
         for (var i = 0; i < swarmSize; i++) {
             var robotBehaviour = Instantiate(robotBehaviourPrefab, transform);
             robotBehaviour.robotLeadBehaviour = robotLeadBehaviour;
+            robotBehaviour.index = i;
             robotBehaviour.transform.position = new Vector3(Random.Range(-14, 14), Random.Range(-9, 9), 0);
         }
     }

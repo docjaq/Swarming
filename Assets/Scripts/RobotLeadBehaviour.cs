@@ -40,7 +40,6 @@ public class RobotLeadBehaviour : MonoBehaviour {
         var updatedForce = Vector3.zero;
 
         if (Input.GetKey("up")) {
-            Debug.Log("Forward");
             updatedForce += transform.up*forceScale;;
         }
 
@@ -53,7 +52,7 @@ public class RobotLeadBehaviour : MonoBehaviour {
         }
         
         if (Input.GetKey("down")) {
-            updatedForce += -transform.forward*forceScale;;
+            updatedForce += -transform.up*forceScale;
         }
         
         rigidBody.AddForce(updatedForce);
@@ -84,5 +83,9 @@ public class RobotLeadBehaviour : MonoBehaviour {
             lineRenderer.SetPosition(index, position);
             index++;
         }
+    }
+
+    public Vector3 GetHistoryTail() {
+        return positionHistory.Peek();
     }
 }
