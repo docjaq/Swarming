@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class LeadRobotMovement : MonoBehaviour {
+public class RobotLeadBehaviour : MonoBehaviour {
 
     private Rigidbody rigidBody;
     private LineRenderer lineRenderer;
@@ -16,24 +16,26 @@ public class LeadRobotMovement : MonoBehaviour {
     private float forceScale = 10;
 
     private Queue<Vector3> positionHistory = new Queue<Vector3>();
+    [SerializeField]
     private int queueLimit = 10;
 
     private bool isUpdating;
-    
-    private void Start() {
+
+    private void Awake() {
+        
         rigidBody = GetComponent<Rigidbody>();
         lineRenderer = GetComponent<LineRenderer>();
 
-        //positionHistory.Limit = 10;
-
+        lineRenderer.positionCount = queueLimit;
+    }
+    
+    private void Start() {
         isUpdating = true;
 
         StartCoroutine(UpdateHistory());
     }
 
     private void FixedUpdate() {
-        
-        //positionHistory.Enqueue(transform.position);
 
         var updatedForce = Vector3.zero;
 

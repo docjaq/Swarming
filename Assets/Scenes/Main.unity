@@ -212,8 +212,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1701537383}
+  - component: {fileID: 1701537384}
   m_Layer: 0
-  m_Name: Characters
+  m_Name: Swarm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -227,13 +228,29 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1701537382}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.27567324, y: -0.5988383, z: -1.3618605}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1948837417}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1701537384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1701537382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cb484c00f65bcb438b3b56ae5b13da3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  robotLeadBehaviour: {fileID: 215570585143453954}
+  swarmSize: 4
+  robotBehaviourPrefab: {fileID: 8320503056716564236, guid: 2dba5ec0671c007438c4c91aec01f71f,
+    type: 3}
 --- !u!4 &1948837417 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 215570586415877929, guid: 6772b13696f0a794bbbae59ec48cbbc3,
@@ -430,6 +447,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationalTorque: 0.5
   forceScale: 10
+  queueLimit: 10
 --- !u!54 &215570585143453955
 Rigidbody:
   m_ObjectHideFlags: 0
