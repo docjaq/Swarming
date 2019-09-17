@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class RobotBehaviour : MonoBehaviour {
 
@@ -11,14 +12,12 @@ public class RobotBehaviour : MonoBehaviour {
 
     public int index = 0;
     
-    [SerializeField] private float defaultForce = 10;
-    [SerializeField] private float maxForce = 20;
+    [SerializeField] private float defaultForce = 15;
+    [SerializeField] private float forceVariance = 5;
     
     [SerializeField] private float defaultTorque = 0.5f;
-    [SerializeField] private float maxTorque = 1;
-
-    [SerializeField] private float deadZone = 0.1f;
-
+    [SerializeField] private float torqueVariance = 0.25f;
+    
     [SerializeField] private AnimationCurve approachVelocityCurve;
     
     [SerializeField] private AnimationCurve relaxationCurve;
@@ -32,8 +31,7 @@ public class RobotBehaviour : MonoBehaviour {
     private float maxNeighbourDistance;
     
     private Vector3 adjustmentForce;
-
-    [SerializeField] bool debug;
+    
     [SerializeField] private LineRenderer forwardsDebugRenderer;
     [SerializeField] private LineRenderer adjustmentDebugRenderer;
     
@@ -45,6 +43,9 @@ public class RobotBehaviour : MonoBehaviour {
     private void Start() {
         adjustmentForce = Vector3.zero;
         maxNeighbourDistance = neighbourCollider.radius;
+
+        defaultForce += Random.Range(-forceVariance, forceVariance);
+        defaultTorque += Random.Range(-torqueVariance, torqueVariance);
     }
     
     private void FixedUpdate() {
@@ -97,15 +98,27 @@ public class RobotBehaviour : MonoBehaviour {
         if (!neighbours.Any())
             return;
 
+        var closestNeigbour = neighbours[0];
+        var closestDistance = float.MaxValue;
+        
         foreach (var neighbour in neighbours) {
 
             if (neighbour == null)
                 continue;
-            
-            var direction = neighbour.transform.position - transform.position;
 
-            adjustmentVector += direction;
+            var distance = Vector3.Distance(transform.position, neighbour.transform.position);
+            
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestNeigbour = neighbour;
+            }
+            
+//            var direction = neighbour.transform.position - transform.position;
+//
+//            adjustmentVector += direction;
         }
+        
+        adjustmentVector = closestNeigbour.transform.position - transform.position;
 
         if (adjustmentVector == Vector3.zero)
             return;
@@ -116,9 +129,6 @@ public class RobotBehaviour : MonoBehaviour {
         
         adjustmentVector = Vector3.Normalize(adjustmentVector);
         var scaledMagnitude = relaxationCurve.Evaluate(normalisedAdjustmentMagnitude);
-
-        //Scale this because both element in the pair are both trying to move away from each other
-        //scaledMagnitude /= 2;
 
         //not sure why I need to do this. Signs are flipping.
         scaledMagnitude = Math.Abs(scaledMagnitude);

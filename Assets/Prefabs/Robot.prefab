@@ -424,11 +424,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   index: 0
-  defaultForce: 10
-  maxForce: 20
+  defaultForce: 15
+  forceVariance: 5
   defaultTorque: 0.5
-  maxTorque: 1
-  deadZone: 0.1
+  torqueVariance: 0.25
   approachVelocityCurve:
     serializedVersion: 2
     m_Curve:
@@ -458,19 +457,28 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
+      value: 0.0011138916
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
+      time: 0.717619
+      value: 1.1483629
+      inSlope: 1.0268097
+      outSlope: 1.0268097
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
+      value: 1.0011139
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
@@ -479,6 +487,5 @@ MonoBehaviour:
     m_RotationOrder: 4
   neighbours: []
   neighbourCollider: {fileID: 1950519186}
-  debug: 0
   forwardsDebugRenderer: {fileID: 60541433}
   adjustmentDebugRenderer: {fileID: 1666045265}
