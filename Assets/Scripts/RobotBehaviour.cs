@@ -51,6 +51,9 @@ public class RobotBehaviour : MonoBehaviour {
         
         DirectFollow();        
     }
+
+    private Vector3 followerVelocity = Vector3.zero;
+    private Vector3 previousForce = Vector3.zero;
     
     //trivial move
     private void DirectFollow() {
@@ -68,15 +71,21 @@ public class RobotBehaviour : MonoBehaviour {
         var distanceToLead = Vector3.Distance(transform.position, robotLeadBehaviour.transform.position);
         var approachVelocityScale = approachVelocityCurve.Evaluate(distanceToLead);
         var forwardForce = forwards*normalisedDirectionalMagnitude*approachVelocityScale*defaultForce;
-
+        
+        //float newPosition = Mathf.SmoothDamp(transform.position.y, target.position.y, ref yVelocity, smoothTime);
+       
         forwardForce += adjustmentForce*defaultForce;
+        
+        //var targetForce = Vector3.SmoothDamp(previousForce, forwardForce, ref followerVelocity, 0.3f);
 
         var angularForce = Vector3.SignedAngle(forwards, toLead, up);
 
         rigidBody.AddTorque(up*defaultTorque*angularForce);
 
         rigidBody.AddForce(forwardForce);
-        
+
+        previousForce = forwardForce;
+
         //ComputeAdjustmentVector();
     }
 

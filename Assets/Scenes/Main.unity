@@ -248,7 +248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   robotLeadBehaviour: {fileID: 215570585143453954}
-  swarmSize: 10
+  swarmSize: 50
   robotBehaviourPrefab: {fileID: 8320503056716564236, guid: 2dba5ec0671c007438c4c91aec01f71f,
     type: 3}
 --- !u!4 &1948837417 stripped
