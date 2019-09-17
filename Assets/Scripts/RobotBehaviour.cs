@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 using UnityEngine.Assertions;
 using Random = UnityEngine.Random;
@@ -11,8 +10,6 @@ public class RobotBehaviour : MonoBehaviour {
 
     private Rigidbody rigidBody;
 
-    public int index = 0;
-    
     [SerializeField] private float defaultForce = 15;
     [SerializeField] private float forceVariance = 5;
     
@@ -153,6 +150,9 @@ public class RobotBehaviour : MonoBehaviour {
 
         if (neighbourClosest == null) {
             neighbourClosest = neighbourCandidate;
+            return;
+        }
+        if (neighbourCandidate == null) {
             return;
         }
 
