@@ -22,6 +22,8 @@ public class RobotLeadBehaviour : MonoBehaviour {
 
     private bool isUpdating;
 
+    [SerializeField] private float movementThreshold = 0;
+
     private void Awake() {
         
         rigidBody = GetComponent<Rigidbody>();
@@ -34,6 +36,10 @@ public class RobotLeadBehaviour : MonoBehaviour {
         isUpdating = true;
 
         StartCoroutine(UpdateHistory());
+    }
+
+    public bool IsMoving() {
+        return rigidBody.velocity.magnitude > movementThreshold;
     }
 
     private void FixedUpdate() {
@@ -91,7 +97,6 @@ public class RobotLeadBehaviour : MonoBehaviour {
     }
     
     public Vector3 GetHistoryRandom() {
-
         //This is O(n) as it's iterating the queue
         return positionHistory.ElementAt(Random.Range(0, positionHistory.Count));
     }

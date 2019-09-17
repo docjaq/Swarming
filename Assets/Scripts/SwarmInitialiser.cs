@@ -13,11 +13,16 @@ public class SwarmInitialiser : MonoBehaviour {
     [SerializeField] private RobotBehaviour robotBehaviourPrefab;
     private void Start() {
 
+        var camera = Camera.main;
+        
+        var halfHeight = camera.orthographicSize - 1;
+        var halfWidth = camera.aspect * halfHeight - 1;
+        
         for (var i = 0; i < swarmSize; i++) {
             var robotBehaviour = Instantiate(robotBehaviourPrefab, transform);
             robotBehaviour.robotLeadBehaviour = robotLeadBehaviour;
             robotBehaviour.index = i;
-            robotBehaviour.transform.position = new Vector3(Random.Range(-14, 14), Random.Range(-9, 9), 0);
+            robotBehaviour.transform.position = new Vector3(Random.Range(-halfWidth, halfWidth), Random.Range(-halfHeight, halfHeight), 0);
         }
     }
 }

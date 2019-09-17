@@ -31,6 +31,8 @@ public class RobotBehaviour : MonoBehaviour {
     private float maxNeighbourDistance;
     
     private Vector3 adjustmentForce;
+
+    private float drag;
     
     private void Awake() {
         rigidBody = GetComponent<Rigidbody>(); ;
@@ -39,12 +41,23 @@ public class RobotBehaviour : MonoBehaviour {
     private void Start() {
         adjustmentForce = Vector3.zero;
         maxNeighbourDistance = neighbourCollider.radius;
+        drag = rigidBody.drag;
 
         defaultForce += Random.Range(-forceVariance, forceVariance);
         defaultTorque += Random.Range(-torqueVariance, torqueVariance);
     }
+
+    private void Update() {
+        
+    }
     
     private void FixedUpdate() {
+
+        if (!robotLeadBehaviour.IsMoving()) {
+            rigidBody.drag = 20;
+        }else{
+            rigidBody.drag = drag;
+        }
         
         ComputeAdjustmentVector();
         DirectFollow();        
@@ -61,7 +74,7 @@ public class RobotBehaviour : MonoBehaviour {
         var up = transform.forward;
 
         var normalisedDirectionalMagnitude = Vector3.Dot(forwards,toLead);
-
+        
         var distanceToLead = Vector3.Distance(transform.position, robotLeadBehaviour.transform.position);
         var approachVelocityScale = approachVelocityCurve.Evaluate(distanceToLead);
         var forwardForce = forwards*normalisedDirectionalMagnitude*approachVelocityScale*defaultForce;
