@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using UnityEngine;
+using UnityEngine.Assertions;
 using Random = UnityEngine.Random;
 
 public class RobotBehaviour : MonoBehaviour {
@@ -24,8 +25,10 @@ public class RobotBehaviour : MonoBehaviour {
     
     public RobotLeadBehaviour robotLeadBehaviour { get; set; }
 
-    [SerializeField]
-    private List<RobotBehaviour> neighbours;
+//   
+//    private List<RobotBehaviour> neighbours;
+
+    [SerializeField] private RobotBehaviour neighbourClosest;
 
     [SerializeField] private SphereCollider neighbourCollider;
     private float maxNeighbourDistance;
@@ -37,7 +40,7 @@ public class RobotBehaviour : MonoBehaviour {
     
     private void Awake() {
         rigidBody = GetComponent<Rigidbody>();
-        neighbours = new List<RobotBehaviour>();
+        //neighbours = new List<RobotBehaviour>();
     }
 
     private void Start() {
@@ -59,25 +62,20 @@ public class RobotBehaviour : MonoBehaviour {
     //trivial move
     private void DirectFollow() {
 
-        var toLead = DirectionToRobotLead();
-        //var toLead = DirectionToRobotLeadHistory();
+        //var toLead = DirectionToRobotLead();
+        var toLead = DirectionToRobotLeadHistory();
         var forwards = transform.up;
         var up = transform.forward;
 
         var normalisedDirectionalMagnitude = Vector3.Dot(forwards,toLead);
-        
-        //forwardsDebugRenderer.SetPosition(0, transform.localPosition);
-        //forwardsDebugRenderer.SetPosition(1, toLead);
 
         var distanceToLead = Vector3.Distance(transform.position, robotLeadBehaviour.transform.position);
         var approachVelocityScale = approachVelocityCurve.Evaluate(distanceToLead);
         var forwardForce = forwards*normalisedDirectionalMagnitude*approachVelocityScale*defaultForce;
         
-        //float newPosition = Mathf.SmoothDamp(transform.position.y, target.position.y, ref yVelocity, smoothTime);
        
         forwardForce += adjustmentForce*defaultForce;
         
-        //var targetForce = Vector3.SmoothDamp(previousForce, forwardForce, ref followerVelocity, 0.3f);
 
         var angularForce = Vector3.SignedAngle(forwards, toLead, up);
 
@@ -95,30 +93,11 @@ public class RobotBehaviour : MonoBehaviour {
         adjustmentForce = Vector3.zero;
         var adjustmentVector = Vector3.zero;
 
-        if (!neighbours.Any())
+        if (neighbourClosest == null)
             return;
 
-        var closestNeigbour = neighbours[0];
-        var closestDistance = float.MaxValue;
         
-        foreach (var neighbour in neighbours) {
-
-            if (neighbour == null)
-                continue;
-
-            var distance = Vector3.Distance(transform.position, neighbour.transform.position);
-            
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestNeigbour = neighbour;
-            }
-            
-//            var direction = neighbour.transform.position - transform.position;
-//
-//            adjustmentVector += direction;
-        }
-        
-        adjustmentVector = closestNeigbour.transform.position - transform.position;
+        adjustmentVector = neighbourClosest.transform.position - transform.position;
 
         if (adjustmentVector == Vector3.zero)
             return;
@@ -130,17 +109,9 @@ public class RobotBehaviour : MonoBehaviour {
         adjustmentVector = Vector3.Normalize(adjustmentVector);
         var scaledMagnitude = relaxationCurve.Evaluate(normalisedAdjustmentMagnitude);
 
-        //not sure why I need to do this. Signs are flipping.
-        scaledMagnitude = Math.Abs(scaledMagnitude);
-        
-        
         adjustmentVector *= scaledMagnitude*maxNeighbourDistance;
-
-        if (index == 0)
-            Debug.Log(adjustmentMagnitude);
-
+        
         adjustmentForce = -adjustmentVector;
-
     }
 
     private Vector3 DirectionToRobotLeadHistory() {
@@ -153,14 +124,46 @@ public class RobotBehaviour : MonoBehaviour {
     }
 
     private void OnTriggerEnter(Collider other) {
-        if (other.gameObject.layer == LayerMask.NameToLayer("SwarmRobot")) 
-            neighbours.Add(other.gameObject.GetComponent<RobotBehaviour>());
+        if (other.gameObject.layer != LayerMask.NameToLayer("SwarmRobot")) return;
+        
+        //Debug.Log("Swarm robot enter");
+        
+        var neighbour = other.gameObject.GetComponentInParent<RobotBehaviour>();
 
+        UpdateClosest(neighbour);
+    }
+
+    private void OnTriggerStay(Collider other) {
+        if (other.gameObject.layer != LayerMask.NameToLayer("SwarmRobot")) return;
+        
+        //Debug.Log("Swarm robot stay");
+        
+        var neighbour = other.gameObject.GetComponentInParent<RobotBehaviour>();
+        UpdateClosest(neighbour);
     }
 
     private void OnTriggerExit(Collider other) {
-        if(other.gameObject.layer == LayerMask.NameToLayer("SwarmRobot"))
-            neighbours.Remove(other.gameObject.GetComponent<RobotBehaviour>());
+        if (other.gameObject.layer != LayerMask.NameToLayer("SwarmRobot")) return;
         
+        //Debug.Log("Swarm robot exit");
+        
+        var neighbour = other.gameObject.GetComponentInParent<RobotBehaviour>();
+
+        if (neighbourClosest == neighbour)
+            neighbourClosest = null;
+    }
+
+    private void UpdateClosest(RobotBehaviour neighbourCandidate) {
+
+        if (neighbourClosest == null) {
+            neighbourClosest = neighbourCandidate;
+            return;
+        }
+
+        var distanceCandidate = Vector3.Distance(transform.position, neighbourCandidate.transform.position);
+        var distanceCurrent = Vector3.Distance(transform.position, neighbourClosest.transform.position);
+
+        if (distanceCandidate < distanceCurrent)
+            neighbourClosest = neighbourCandidate;
     }
 }
