@@ -25,9 +25,6 @@ public class RobotBehaviour : MonoBehaviour {
     
     public RobotLeadBehaviour robotLeadBehaviour { get; set; }
 
-//   
-//    private List<RobotBehaviour> neighbours;
-
     [SerializeField] private RobotBehaviour neighbourClosest;
 
     [SerializeField] private SphereCollider neighbourCollider;
@@ -35,12 +32,8 @@ public class RobotBehaviour : MonoBehaviour {
     
     private Vector3 adjustmentForce;
     
-    [SerializeField] private LineRenderer forwardsDebugRenderer;
-    [SerializeField] private LineRenderer adjustmentDebugRenderer;
-    
     private void Awake() {
-        rigidBody = GetComponent<Rigidbody>();
-        //neighbours = new List<RobotBehaviour>();
+        rigidBody = GetComponent<Rigidbody>(); ;
     }
 
     private void Start() {
@@ -53,15 +46,15 @@ public class RobotBehaviour : MonoBehaviour {
     
     private void FixedUpdate() {
         
+        ComputeAdjustmentVector();
         DirectFollow();        
     }
 
     private Vector3 followerVelocity = Vector3.zero;
     private Vector3 previousForce = Vector3.zero;
     
-    //trivial move
     private void DirectFollow() {
-
+        
         //var toLead = DirectionToRobotLead();
         var toLead = DirectionToRobotLeadHistory();
         var forwards = transform.up;
@@ -73,10 +66,8 @@ public class RobotBehaviour : MonoBehaviour {
         var approachVelocityScale = approachVelocityCurve.Evaluate(distanceToLead);
         var forwardForce = forwards*normalisedDirectionalMagnitude*approachVelocityScale*defaultForce;
         
-       
         forwardForce += adjustmentForce*defaultForce;
         
-
         var angularForce = Vector3.SignedAngle(forwards, toLead, up);
 
         rigidBody.AddTorque(up*defaultTorque*angularForce);
@@ -85,10 +76,9 @@ public class RobotBehaviour : MonoBehaviour {
 
         previousForce = forwardForce;
 
-        //ComputeAdjustmentVector();
     }
 
-    private void Update() {
+    private void ComputeAdjustmentVector() {
         
         adjustmentForce = Vector3.zero;
         var adjustmentVector = Vector3.zero;
@@ -96,7 +86,6 @@ public class RobotBehaviour : MonoBehaviour {
         if (neighbourClosest == null)
             return;
 
-        
         adjustmentVector = neighbourClosest.transform.position - transform.position;
 
         if (adjustmentVector == Vector3.zero)
@@ -125,9 +114,7 @@ public class RobotBehaviour : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other) {
         if (other.gameObject.layer != LayerMask.NameToLayer("SwarmRobot")) return;
-        
-        //Debug.Log("Swarm robot enter");
-        
+
         var neighbour = other.gameObject.GetComponentInParent<RobotBehaviour>();
 
         UpdateClosest(neighbour);
@@ -135,18 +122,14 @@ public class RobotBehaviour : MonoBehaviour {
 
     private void OnTriggerStay(Collider other) {
         if (other.gameObject.layer != LayerMask.NameToLayer("SwarmRobot")) return;
-        
-        //Debug.Log("Swarm robot stay");
-        
+
         var neighbour = other.gameObject.GetComponentInParent<RobotBehaviour>();
         UpdateClosest(neighbour);
     }
 
     private void OnTriggerExit(Collider other) {
         if (other.gameObject.layer != LayerMask.NameToLayer("SwarmRobot")) return;
-        
-        //Debug.Log("Swarm robot exit");
-        
+
         var neighbour = other.gameObject.GetComponentInParent<RobotBehaviour>();
 
         if (neighbourClosest == neighbour)

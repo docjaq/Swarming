@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Rigidbody))]
 public class RobotLeadBehaviour : MonoBehaviour {
@@ -87,5 +88,11 @@ public class RobotLeadBehaviour : MonoBehaviour {
 
     public Vector3 GetHistoryTail() {
         return positionHistory.Peek();
+    }
+    
+    public Vector3 GetHistoryRandom() {
+
+        //This is O(n) as it's iterating the queue
+        return positionHistory.ElementAt(Random.Range(0, positionHistory.Count));
     }
 }
